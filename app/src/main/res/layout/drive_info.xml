@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:padding="5dp"
+    android:weightSum="10">
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.6"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/subwayBar"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="0.8"
+        android:adjustViewBounds="true"
+        android:hapticFeedbackEnabled="false"
+        android:padding="10dp"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/driveInfoText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="3.6"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textSize="24sp"
+        android:visibility="visible"
+        app:autoSizeMaxTextSize="24sp" />
+
+    <TextView
+        android:id="@+id/spendView0"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:lines="3"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/tText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textSize="12sp"
+        android:visibility="invisible"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeTextType="uniform" />
+
+    <TextView
+        android:id="@+id/spendView1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:textSize="24sp" />
+
+</LinearLayout>
+

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:padding="5dp"
+    android:weightSum="10">
+
+    <TextView
+        android:id="@+id/stationStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:text="출발"
+        android:textSize="20sp"
+        app:autoSizeMaxTextSize="20sp"
+        app:autoSizeTextType="uniform" />
+
+    <ImageView
+        android:id="@+id/stationIcon"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.0"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/line1" />
+
+    <TextView
+        android:id="@+id/stationName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="3.5"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="시청역"
+        android:textSize="28sp"
+        app:autoSizeMaxTextSize="28sp"
+        app:autoSizeTextType="uniform" />
+
+    <TextView
+        android:id="@+id/timeView0"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textSize="24sp"
+        app:autoSizeMaxTextSize="24sp"
+        app:autoSizeTextType="uniform" />
+
+    <TextView
+        android:id="@+id/transText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="･･･"
+        android:textSize="12sp"
+        android:visibility="invisible"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeTextType="uniform" />
+
+    <TextView
+        android:id="@+id/timeView1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1.5"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textSize="24sp"
+        app:autoSizeMaxTextSize="24sp"
+        app:autoSizeTextType="uniform" />
+</LinearLayout>
