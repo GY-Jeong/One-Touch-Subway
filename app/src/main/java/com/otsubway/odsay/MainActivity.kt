@@ -282,11 +282,10 @@ class MainActivity : AppCompatActivity() {
 
             try {
                 val readDB = this.openOrCreateDatabase("stationByLocation.db", Context.MODE_PRIVATE, null)
-
                 for(i in 0..1) {
                     val strsql = "select * from locations where userLocation = \'" + station[i] + "\'"
                     val c : Cursor = readDB.rawQuery(strsql, null)
-                    if(c != null) {
+                    if(c.count != 0) {
                         c.moveToFirst()
                         station[i] = c.getString(c.getColumnIndex("station"))
                         Log.i("station ", station[i])
@@ -295,9 +294,6 @@ class MainActivity : AppCompatActivity() {
             } catch (e : SQLiteException) {
                 Log.i("No SQL ", e.message)
             }
-
-
-
 
             var first = station[0]
             var second = station[1]
