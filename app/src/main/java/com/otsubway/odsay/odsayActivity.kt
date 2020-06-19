@@ -5,6 +5,8 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.odsay.odsayandroidsdk.API
@@ -39,10 +41,14 @@ class odsayActivity : AppCompatActivity() {
     val timeTableList = arrayListOf<ArrayList<Int>>()
     val transitStationInfo = arrayListOf<JSONObject>()
 
+    val timeTableJsonInfoList = arrayListOf<JSONObject>()
+
+
     var temp = 0
     var currentTime = 0
     var travelTime = 0
     var dayOfWeekCode: String = ""
+    var check = 0
 
     var driveNumber: Int = 0
     var stationInfoList = arrayListOf<Station>()
@@ -54,7 +60,6 @@ class odsayActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_odsay)
-        initODsay()
 
         val cal = Calendar.getInstance()
         currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
@@ -67,12 +72,63 @@ class odsayActivity : AppCompatActivity() {
             else -> "SatList"
         }
 
+        initODsay()
+        initSpinner()
+
         val i = intent
         list = i.getStringArrayListExtra("stationCodeList") as ArrayList<String>
         startStationCode = list[0]
         endStationCode = list[1]
 
         startPathSearch(startStationCode, endStationCode)
+    }
+
+    private fun initSpinner() {
+        val adapter =
+            ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ArrayList<String>())
+        adapter.add("평일")
+        adapter.add("토요일")
+        adapter.add("일요일")
+        spinner.adapter = adapter
+        when(dayOfWeekCode) {
+            "OrdList" -> spinner.setSelection(0)
+            "SatList" -> spinner.setSelection(1)
+            else -> spinner.setSelection(2)
+        }
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //TODO("Not yet implemented")
+            }
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                check++
+                if(check > 1) {
+                    temp = 0
+                    travelTime = currentTime
+                    timeTableList.clear()
+                    pathViewList.removeAllViews()
+                    when (position) {
+                        0 -> {
+                            dayOfWeekCode = "OrdList"
+                        }
+                        1 -> {
+                            dayOfWeekCode = "SatList"
+                        }
+                        2 -> {
+                            dayOfWeekCode = "SunList"
+                        }
+                    }
+                    for(i in 0 until timeTableJsonInfoList.size) {
+                        searchTimeTable(timeTableJsonInfoList[i])
+                    }
+                }
+            }
+        }
     }
 
     fun initODsay() {
@@ -107,8 +163,10 @@ class odsayActivity : AppCompatActivity() {
                     }
                     API.SUBWAY_TIME_TABLE -> {
                         timeTableJsonInfo = odsayData.json.getJSONObject("result")
+                        timeTableJsonInfoList.add(timeTableJsonInfo)
                         searchTimeTable(timeTableJsonInfo)
                     }
+                    else -> Log.e("API ", api.toString())
                 }
             } catch (e: JSONException) {
                 e.printStackTrace();
@@ -127,11 +185,11 @@ class odsayActivity : AppCompatActivity() {
     }
 
     private fun searchTimeTable(timeTableJsonInfo: JSONObject) {
-        var timeList = arrayListOf<Int>()
+        val timeList = arrayListOf<Int>()
 
         val ordList = timeTableJsonInfo.getJSONObject(dayOfWeekCode)
 
-        var wayList = if (ordList.has("up")) {
+        val wayList = if (ordList.has("up")) {
             ordList.getJSONObject("up")
         } else {
             ordList.getJSONObject("down")
@@ -241,7 +299,8 @@ class odsayActivity : AppCompatActivity() {
         var partTime = 0
         var spendTime = 0
         var tempStationCount = 0
-        var t = 0
+        var t: Int
+
 
         for (i in 0 until stationInfoList.size) {
             val view = layoutInflater.inflate(R.layout.station_info, pathViewList, false)
@@ -321,7 +380,7 @@ class odsayActivity : AppCompatActivity() {
                 }
 
                 if (i == stationInfoList.size - 2) {
-                    driveView.driveInfoText.text = "${driveInfoList[i].getString("wayName")}"
+                    driveView.driveInfoText.text = driveInfoList[i].getString("wayName")
                 } else {
                     driveView.driveInfoText.text =
                         "${driveInfoList[i].getString("wayName")}\n빠른 환승${transitStationInfo[i].getInt(
