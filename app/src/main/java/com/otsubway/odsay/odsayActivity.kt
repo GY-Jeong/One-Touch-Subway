@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.odsay.odsayandroidsdk.API
 import com.odsay.odsayandroidsdk.ODsayData
@@ -43,17 +44,15 @@ class odsayActivity : AppCompatActivity() {
 
     val timeTableJsonInfoList = arrayListOf<JSONObject>()
 
-
+    var searchOption = "1"
+    var firstTravelIndex: Int = 0
     var temp = 0
     var currentTime = 0
     var travelTime = 0
     var dayOfWeekCode: String = ""
     var check = 0
-
     var driveNumber: Int = 0
     var stationInfoList = arrayListOf<Station>()
-
-    //var driveInfoList = arrayListOf<Drive>()
     var driveInfoList = arrayListOf<JSONObject>()
 
 
@@ -62,44 +61,86 @@ class odsayActivity : AppCompatActivity() {
         setContentView(R.layout.activity_odsay)
 
         val cal = Calendar.getInstance()
+        var dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
         currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+        if (currentTime < 60) {
+            currentTime += 24 * 60
+            dayOfWeek--
+        }
         travelTime = currentTime
 
-        val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
         dayOfWeekCode = when (dayOfWeek) {
             1 -> "SunList"
             in 2..6 -> "OrdList"
             else -> "SatList"
         }
 
+        swiperefresh.setOnRefreshListener {
+            swiperefresh.isRefreshing = true
+            refreshTime()
+            temp = 0
+            timeTableList.clear()
+            pathViewList.removeAllViews()
+            for (i in 0 until timeTableJsonInfoList.size) {
+                searchTimeTable(timeTableJsonInfoList[i])
+            }
+        }
+
         initODsay()
         initSpinner()
 
-        val i = intent
-        list = i.getStringArrayListExtra("stationCodeList") as ArrayList<String>
-        startStationCode = list[0]
-        endStationCode = list[1]
+        prevTravelBtn.setOnClickListener {
+            if (firstTravelIndex == 0) {
+                Toast.makeText(this, "이전 열차가 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                firstTravelIndex--
+                travelTime = timeTableList[0][firstTravelIndex]
+                pathViewList.removeAllViews()
+                attachOnView()
+                nextTravelBtn.isClickable = true
+            }
+        }
 
-        startPathSearch(startStationCode, endStationCode)
+        nextTravelBtn.setOnClickListener {
+            if (firstTravelIndex == timeTableList[0].size - 1) {
+                Toast.makeText(this, "다음 열차가 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                firstTravelIndex++
+                travelTime = timeTableList[0][firstTravelIndex]
+                pathViewList.removeAllViews()
+                attachOnView()
+            }
+        }
+
+//        val i = intent
+//        list = i.getStringArrayListExtra("stationCodeList") as ArrayList<String>
+//        startStationCode = list[0]
+//        endStationCode = list[1]
+
+        startStationCode = "1316"
+        endStationCode = "720"
+
+        startPathSearch()
     }
 
     private fun initSpinner() {
-        val adapter =
-            ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ArrayList<String>())
-        adapter.add("평일")
-        adapter.add("토요일")
-        adapter.add("일요일")
-        spinner.adapter = adapter
-        when(dayOfWeekCode) {
-            "OrdList" -> spinner.setSelection(0)
-            "SatList" -> spinner.setSelection(1)
-            else -> spinner.setSelection(2)
+        val dayOfWeekAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, ArrayList<String>())
+        dayOfWeekAdapter.add("평일")
+        dayOfWeekAdapter.add("토요일")
+        dayOfWeekAdapter.add("공휴일")
+        dayOfWeekSpinner.adapter = dayOfWeekAdapter
+        when (dayOfWeekCode) {
+            "OrdList" -> dayOfWeekSpinner.setSelection(0)
+            "SatList" -> dayOfWeekSpinner.setSelection(1)
+            else -> dayOfWeekSpinner.setSelection(2)
         }
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        dayOfWeekSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 //TODO("Not yet implemented")
             }
+
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -107,9 +148,9 @@ class odsayActivity : AppCompatActivity() {
                 id: Long
             ) {
                 check++
-                if(check > 1) {
+                if (check > 2) {
                     temp = 0
-                    travelTime = currentTime
+                    refreshTime()
                     timeTableList.clear()
                     pathViewList.removeAllViews()
                     when (position) {
@@ -123,12 +164,63 @@ class odsayActivity : AppCompatActivity() {
                             dayOfWeekCode = "SunList"
                         }
                     }
-                    for(i in 0 until timeTableJsonInfoList.size) {
+                    for (i in 0 until timeTableJsonInfoList.size) {
                         searchTimeTable(timeTableJsonInfoList[i])
                     }
                 }
             }
         }
+
+        val travelOptionAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, ArrayList<String>())
+        travelOptionAdapter.add("최단시간")
+        travelOptionAdapter.add("최소환승")
+        travelOptionSpinner.adapter = travelOptionAdapter
+        travelOptionSpinner.setSelection(0)
+
+        travelOptionSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                check++
+                if (check > 2) {
+                    temp = 0
+                    refreshTime()
+                    timeTableList.clear()
+                    driveInfoList.clear()
+                    stationInfoList.clear()
+                    transitStationInfo.clear()
+                    pathViewList.removeAllViews()
+                    when (position) {
+                        0 -> {
+                            searchOption = "1"
+                            startPathSearch()
+                        }
+                        1 -> {
+                            searchOption = "2"
+                            startPathSearch()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun refreshTime() {
+        val cal = Calendar.getInstance()
+        currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+        Log.i("refreshTime ", currentTime.toString())
+        if (currentTime < 60) {
+            currentTime += 24 * 60
+        }
+        travelTime = currentTime
     }
 
     fun initODsay() {
@@ -138,12 +230,12 @@ class odsayActivity : AppCompatActivity() {
         odsayService.setConnectionTimeout(5000)
     }
 
-    private fun startPathSearch(startStation: String, endStation: String) {
+    private fun startPathSearch() {
         odsayService.requestSubwayPath(
             "1000",
-            startStation,
-            endStation,
-            "1",
+            startStationCode,
+            endStationCode,
+            searchOption,
             onResultCallbackListener
         )
     }
@@ -155,11 +247,11 @@ class odsayActivity : AppCompatActivity() {
                 when (api) {
                     API.SUBWAY_PATH -> {
                         pathJsonInfo = odsayData.json.getJSONObject("result")
-                        Log.i("pathJson ", pathJsonInfo.toString())
+                        Log.i("pathJson ", odsayData.json.getJSONObject("result").toString())
                         startStationName = pathJsonInfo.getString("globalStartName")
                         endStationName = pathJsonInfo.getString("globalEndName")
                         globalTravelTime = pathJsonInfo.getString("globalTravelTime")
-                        searchFastestPath(pathJsonInfo)
+                        searchPath(pathJsonInfo)
                     }
                     API.SUBWAY_TIME_TABLE -> {
                         timeTableJsonInfo = odsayData.json.getJSONObject("result")
@@ -169,7 +261,7 @@ class odsayActivity : AppCompatActivity() {
                     else -> Log.e("API ", api.toString())
                 }
             } catch (e: JSONException) {
-                e.printStackTrace();
+                e.printStackTrace()
             }
         }
 
@@ -196,7 +288,7 @@ class odsayActivity : AppCompatActivity() {
         }
 
         val time = wayList.getJSONArray("time")
-        Log.i("timeTableJson ", time.toString())
+        //Log.i("timeTableJson ", time.toString())
 
         for (i in 0 until time.length()) {
             val h = time.getJSONObject(i).getInt("Idx")
@@ -215,16 +307,17 @@ class odsayActivity : AppCompatActivity() {
 
     private fun searchFastestTime(i: Int): Int {
         val timeList = timeTableList[i]
-        for (i in 0 until timeList.size) {
-            if (travelTime <= timeList[i]) {
-                travelTime = timeList[i]
-                return timeList[i]
+        for (j in 0 until timeList.size) {
+            if (travelTime <= timeList[j]) {
+                if (i == 0) firstTravelIndex = j
+                travelTime = timeList[j]
+                return timeList[j]
             }
         }
         return -1
     }
 
-    private fun searchFastestPath(json: JSONObject) {
+    private fun searchPath(json: JSONObject) {
         stations = json.getJSONObject("stationSet").getJSONArray("stations")
         driveInfo = json.getJSONObject("driveInfoSet").getJSONArray("driveInfo")
         driveNumber = driveInfo.length()
@@ -295,12 +388,12 @@ class odsayActivity : AppCompatActivity() {
     }
 
     private fun attachOnView() {
+        swiperefresh.isRefreshing = false
         var startTravelTime = 0
         var partTime = 0
         var spendTime = 0
         var tempStationCount = 0
         var t: Int
-
 
         for (i in 0 until stationInfoList.size) {
             val view = layoutInflater.inflate(R.layout.station_info, pathViewList, false)
@@ -316,14 +409,24 @@ class odsayActivity : AppCompatActivity() {
 
             when (i) {
                 0 -> {
+                    startTravelTime = searchFastestTime(i)
+                    if (startTravelTime == -1) {
+                        Toast.makeText(this, "현재 시간에 운행하는 열차가 없습니다", Toast.LENGTH_SHORT).show()
+                        scrollView2.visibility = View.GONE
+                        noResultView.visibility = View.VISIBLE
+                        prevTravelBtn.isClickable = false
+                        nextTravelBtn.isClickable = false
+                        swiperefresh.isEnabled = false
+                        return
+                    }
+                    view.stationStatus.text = "출발"
                     if (stationInfoList.size == 2) {
                         view.timeView1.visibility = View.GONE
                         view.transText.visibility = View.GONE
-                        val param : LinearLayout.LayoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
+                        val param: LinearLayout.LayoutParams =
+                            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
                         view.timeView0.layoutParams = param
                     }
-                    view.stationStatus.text = "출발"
-                    startTravelTime = searchFastestTime(i)
                     view.timeView0.text =
                         String.format("%02d:%02d", travelTime / 60, travelTime % 60)
                 }
@@ -331,7 +434,8 @@ class odsayActivity : AppCompatActivity() {
                     if (stationInfoList.size == 2) {
                         view.timeView1.visibility = View.GONE
                         view.transText.visibility = View.GONE
-                        val param : LinearLayout.LayoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
+                        val param: LinearLayout.LayoutParams =
+                            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
                         view.timeView0.layoutParams = param
                     }
                     view.stationStatus.text = "도착"
@@ -352,17 +456,49 @@ class odsayActivity : AppCompatActivity() {
                         view.timeView0.text =
                             String.format("%02d:%02d", travelTime / 60, travelTime % 60)
                         travelTime += (transitStationInfo[i - 1].getInt("exWalkTime") / 60) + 1
-                        searchFastestTime(i)
-                        view.timeView1.text =
-                            String.format("%02d:%02d", travelTime / 60, travelTime % 60)
+                        if (searchFastestTime(i) == -1) {
+                            Toast.makeText(this, "현재 시간에 운행하는 열차가 없습니다", Toast.LENGTH_SHORT).show()
+                            view.timeView1.visibility = View.GONE
+                            view.transText.visibility = View.GONE
+                            val param: LinearLayout.LayoutParams =
+                                LinearLayout.LayoutParams(
+                                    0,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    3.5f
+                                )
+                            view.timeView0.layoutParams = param
+                            view.timeView0.text = "열차 없음"
+                            nextTravelBtn.isClickable = false
+                            pathViewList.addView(view)
+                            return
+                        } else {
+                            view.timeView1.text =
+                                String.format("%02d:%02d", travelTime / 60, travelTime % 60)
+                        }
                     } else {
                         travelTime += partTime
                         view.timeView1.text =
                             String.format("%02d:%02d", travelTime / 60, travelTime % 60)
                         travelTime += (transitStationInfo[i - 1].getInt("exWalkTime") / 60) + 1
-                        searchFastestTime(i)
-                        view.timeView0.text =
-                            String.format("%02d:%02d", travelTime / 60, travelTime % 60)
+                        if (searchFastestTime(i) == -1) {
+                            Toast.makeText(this, "현재 시간에 운행하는 열차가 없습니다", Toast.LENGTH_SHORT).show()
+                            view.timeView1.visibility = View.GONE
+                            view.transText.visibility = View.GONE
+                            val param: LinearLayout.LayoutParams =
+                                LinearLayout.LayoutParams(
+                                    0,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    3.5f
+                                )
+                            view.timeView0.layoutParams = param
+                            view.timeView0.text = "열차 없음"
+                            nextTravelBtn.isClickable = false
+                            pathViewList.addView(view)
+                            return
+                        } else {
+                            view.timeView0.text =
+                                String.format("%02d:%02d", travelTime / 60, travelTime % 60)
+                        }
                     }
                 }
             }
@@ -375,7 +511,8 @@ class odsayActivity : AppCompatActivity() {
                 if (stationInfoList.size == 2) {
                     driveView.tText.visibility = View.GONE
                     driveView.spendView1.visibility = View.GONE
-                    val param : LinearLayout.LayoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
+                    val param: LinearLayout.LayoutParams =
+                        LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
                     driveView.spendView0.layoutParams = param
                 }
 
@@ -402,7 +539,7 @@ class odsayActivity : AppCompatActivity() {
                     GradientDrawable.Orientation.TOP_BOTTOM,
                     intArrayOf(
                         colorByLine(stationInfoList[i].lineCode),
-                        colorByLine(stationInfoList[i+1].lineCode)
+                        colorByLine(stationInfoList[i + 1].lineCode)
                     )
                 )
                 gd.cornerRadius = 30F
