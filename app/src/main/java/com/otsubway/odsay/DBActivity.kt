@@ -25,10 +25,10 @@ class DBActivity : AppCompatActivity() {
             val location = Location(userLocation, stationName)
             val result = myDBHelper.insertProduct(location)
             if(result) {
-                Toast.makeText(this, "DB INSERT SUCCESS", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "추가에 성공했습니다.", Toast.LENGTH_SHORT).show()
                 getAllRecord()
             } else {
-                Toast.makeText(this, "DB INSERT FAILED", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "추가에 실패하였습니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -36,10 +36,10 @@ class DBActivity : AppCompatActivity() {
             val userLocation = userlocationEdit.text.toString()
             val result = myDBHelper.deleteProduct(userLocation)
             if(result) {
-                Toast.makeText(this, "DELETE SUCCESS", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "삭제에 성공했습니다.", Toast.LENGTH_SHORT).show()
                 getAllRecord()
             } else {
-                Toast.makeText(this, "DELETE FAILED", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "삭제에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -49,10 +49,10 @@ class DBActivity : AppCompatActivity() {
             val location = Location(userLocation, stationName)
             val result = myDBHelper.updateProduct(location)
             if(result) {
-                Toast.makeText(this, "UPDATE SUCCESS", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "업데이트에 성공했습니다.", Toast.LENGTH_SHORT).show()
                 getAllRecord()
             } else {
-                Toast.makeText(this, "UPDATE FAILED", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "업데이트에 실패했습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }

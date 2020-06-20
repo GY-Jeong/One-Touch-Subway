@@ -32,8 +32,6 @@ class MainActivity : AppCompatActivity() {
     var tryNum = 0
     var initTime : Long = 0
 
-    lateinit var myDBHelper : DBhelper
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,6 +40,10 @@ class MainActivity : AppCompatActivity() {
         initODSay()
         dbButton.setOnClickListener {
             val i = Intent(this, DBActivity::class.java)
+            startActivity(i)
+        }
+        infoButton.setOnClickListener {
+            val i = Intent(this, InfoActivity::class.java)
             startActivity(i)
         }
     }
@@ -196,25 +198,9 @@ class MainActivity : AppCompatActivity() {
                         Log.i("onError ", errorMsg)
                         runOnUiThread { tv_result.text = "음성입력이 불가능하거나\n마이크 접근이 허용되지 않았습니다." }
                     }
-                    SpeechRecognizerClient.ERROR_AUTH_FAIL -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "APIKEY 인증이 실패했습니다." }
-                    }
                     SpeechRecognizerClient.ERROR_NETWORK_FAIL -> {
                         Log.i("onError ", errorMsg)
                         runOnUiThread { tv_result.text = "네트워크 오류가 발생했습니다.\n인터넷 상태를 확인해주세요." }
-                    }
-                    SpeechRecognizerClient.ERROR_NETWORK_TIMEOUT -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "네트워크 타임아웃이 발생했습니다." }
-                    }
-                    SpeechRecognizerClient.ERROR_SERVER_FAIL -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "서버에서 오류가 발생했습니다." }
-                    }
-                    SpeechRecognizerClient.ERROR_SERVER_TIMEOUT -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "서버 응답 시간이 초과했습니다." }
                     }
                     SpeechRecognizerClient.ERROR_NO_RESULT -> {
                         Log.i("onError ", errorMsg)
@@ -224,29 +210,19 @@ class MainActivity : AppCompatActivity() {
                         Log.i("onError ", errorMsg)
                         runOnUiThread { tv_result.text = "\" ~ 에서(부터) ~ \"\n으로 말해주세요." }
                     }
-                    SpeechRecognizerClient.ERROR_RECOGNITION_TIMEOUT -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "전체 소요시간에 대한 타임아웃이 발생했습니다." }
-                    }
-                    SpeechRecognizerClient.ERROR_SERVER_UNSUPPORT_SERVICE -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "제공하지 않는 서비스 타입이 지정됐습니다." }
-                    }
-                    SpeechRecognizerClient.ERROR_SERVER_USERDICT_EMPTY -> {
-                        Log.i("onError ", errorMsg)
-                        runOnUiThread { tv_result.text = "입력된 사용자 사전에 내용이 없습니다." }
-                    }
                     SpeechRecognizerClient.ERROR_SERVER_ALLOWED_REQUESTS_EXCESS -> {
                         Log.i("onError ", errorMsg)
                         runOnUiThread { tv_result.text = "요청 허용 횟수를 초과했습니다." }
                     }
+                    else -> {
+                        Log.i("onError ", errorMsg)
+                        runOnUiThread { tv_result.text = "시스템 오류입니다." }
+                    }
                 }
             }
-
             override fun onFinished() {
             }
         })
-        //음성인식 시작함
 
         bt_start.setOnClickListener {
             client.startRecording(true)
@@ -277,8 +253,6 @@ class MainActivity : AppCompatActivity() {
 
             Log.d("부터", station[0])
             Log.d("부터", station[1])
-
-            //User - Defined Station 검사 아마 데이터베이스를 써야되지 않을까 싶습니다.
 
             try {
                 val readDB = this.openOrCreateDatabase("stationByLocation.db", Context.MODE_PRIVATE, null)

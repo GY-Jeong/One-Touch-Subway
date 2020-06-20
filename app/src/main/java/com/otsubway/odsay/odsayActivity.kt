@@ -112,13 +112,13 @@ class odsayActivity : AppCompatActivity() {
             }
         }
 
-//        val i = intent
-//        list = i.getStringArrayListExtra("stationCodeList") as ArrayList<String>
-//        startStationCode = list[0]
-//        endStationCode = list[1]
+        val i = intent
+        list = i.getStringArrayListExtra("stationCodeList") as ArrayList<String>
+        startStationCode = list[0]
+        endStationCode = list[1]
 
-        startStationCode = "1316"
-        endStationCode = "720"
+//        startStationCode = "1316"
+//        endStationCode = "720"
 
         startPathSearch()
     }
