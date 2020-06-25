@@ -1,13 +1,16 @@
 package com.otsubway.odsay
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_db.*
+import java.util.*
 
 class DBActivity : AppCompatActivity() {
 
     lateinit var myDBHelper : DBhelper
+    var array = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,6 +20,16 @@ class DBActivity : AppCompatActivity() {
     }
 
     private fun init() {
+        val scan = Scanner(resources.openRawResource(R.raw.station_name))
+        while(scan.hasNextLine()) {
+            val name = scan.nextLine()
+            array.add(name)
+        }
+        scan.close()
+
+        var adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, array)
+        stationEdit.setAdapter(adapter)
+
         myDBHelper = DBhelper(this)
 
         insertBtn.setOnClickListener {

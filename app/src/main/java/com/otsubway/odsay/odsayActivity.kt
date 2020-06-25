@@ -541,11 +541,13 @@ class odsayActivity : AppCompatActivity() {
                     driveView.spendView0.layoutParams = param
                 }
 
-                if (i == stationInfoList.size - 2) {
-                    driveView.driveInfoText.text = driveInfoList[i].getString("wayName")
-                } else {
-                    driveView.driveInfoText.text =
-                        "${driveInfoList[i].getString("wayName")}\n빠른 환승${transitStationInfo[i].getInt("fastDoor")}"
+                if(driveInfoList[i].has("wayName")) {
+                    if (i == stationInfoList.size - 2) {
+                        driveView.driveInfoText.text = driveInfoList[i].getString("wayName")
+                    } else {
+                        driveView.driveInfoText.text =
+                            "${driveInfoList[i].getString("wayName")}\n빠른 환승${transitStationInfo[i].getInt("fastDoor")}"
+                    }
                 }
 
                 tempStationCount += driveInfoList[i].getInt("stationCount")
