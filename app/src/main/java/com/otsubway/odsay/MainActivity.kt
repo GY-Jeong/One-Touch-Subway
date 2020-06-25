@@ -21,7 +21,10 @@ import com.odsay.odsayandroidsdk.ODsayService
 import com.odsay.odsayandroidsdk.OnResultCallbackListener
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONException
-import java.io.FileOutputStream
+import java.io.FileNotFoundException
+import java.io.InputStream
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     val TAG = "KAKAO"
@@ -30,7 +33,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var odsayService: ODsayService
     val list = arrayListOf<String>()
     var tryNum = 0
-    var initTime : Long = 0
+    var initTime: Long = 0
+    var stationCodeMap = mutableMapOf<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +50,21 @@ class MainActivity : AppCompatActivity() {
             val i = Intent(this, InfoActivity::class.java)
             startActivity(i)
         }
+        readFile()
+    }
+
+    private fun readFile() {
+        try {
+            val scan = Scanner(openFileInput("StationCode.txt") as InputStream)
+            while (scan.hasNextLine()) {
+                val stationName = scan.nextLine()
+                val stationCode = scan.nextLine()
+                stationCodeMap[stationName] = stationCode
+            }
+            scan.close()
+        } catch (ex: FileNotFoundException) {
+
+        }
     }
 
     private fun initODSay() {
@@ -53,15 +72,6 @@ class MainActivity : AppCompatActivity() {
             ODsayService.init(applicationContext, "RcoymhQZ8l0B/FfV7rRW0nKUPPHZASFWAxC+QNnAs+Q")
         odsayService.setReadTimeout(5000)
         odsayService.setConnectionTimeout(5000)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        SpeechRecognizerManager.getInstance().finalizeLibrary()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 
     private fun setupPermissions() {
@@ -220,6 +230,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+
             override fun onFinished() {
             }
         })
@@ -243,6 +254,9 @@ class MainActivity : AppCompatActivity() {
             if (resultText.contains("시청용인대")) {
                 resultText = resultText.replace("시청용인대", "시청.용인대")
             }
+            if (resultText.contains("419민주묘지")) {
+                resultText = resultText.replace("419민주묘지", "4.19민주묘지")
+            }
 
             lateinit var station: ArrayList<String>
             if (resultText.contains("에서")) {
@@ -255,33 +269,35 @@ class MainActivity : AppCompatActivity() {
             Log.d("부터", station[1])
 
             try {
-                val readDB = this.openOrCreateDatabase("stationByLocation.db", Context.MODE_PRIVATE, null)
-                for(i in 0..1) {
-                    val strsql = "select * from locations where userLocation = \'" + station[i] + "\'"
-                    val c : Cursor = readDB.rawQuery(strsql, null)
-                    if(c.count != 0) {
+                val readDB =
+                    this.openOrCreateDatabase("stationByLocation.db", Context.MODE_PRIVATE, null)
+                for (i in 0..1) {
+                    val strsql =
+                        "select * from locations where userLocation = \'" + station[i] + "\'"
+                    val c: Cursor = readDB.rawQuery(strsql, null)
+                    if (c.count != 0) {
                         c.moveToFirst()
                         station[i] = c.getString(c.getColumnIndex("station"))
                         Log.i("station ", station[i])
                     }
                 }
-            } catch (e : SQLiteException) {
+            } catch (e: SQLiteException) {
                 Log.i("No SQL ", e.message)
             }
 
-            var first = station[0]
-            var second = station[1]
-            if (first[first.length - 1] == '역') {
-                first = first.substring(0, first.length - 1)
-            }
-            if (second[second.length - 1] == '역') {
-                second = second.substring(0, second.length - 1)
+            for(i in 0..1) {
+                if(station[i][station[i].length - 1] == '역') {
+                    station[i] = station[i].substring(0, station[i].length - 1)
+                }
+                if(station[i] == "서울") {
+                    station[i] = "서울역"
+                }
             }
 
-            if (first == second) {
+            if (station[0] == station[1]) {
                 tv_result.text = "출발지와 도착지가 같습니다.\n다시 시도해주세요."
             } else {
-                changeToStationCode(first, second)
+                changeToStationCode(station[0], station[1])
             }
         }
     }
@@ -293,7 +309,7 @@ class MainActivity : AppCompatActivity() {
                 val json = odsayData.json
                 if (json.has("result")) {
                     val result = json.getJSONObject("result")
-                    if (result.getString("totalCount") != 0.toString()) {
+                    if (result.getInt("totalCount") > 0) {
                         val station = result.getJSONArray("station")
                         val startCode = station.getJSONObject(0).getString("stationID")
                         startODsay(startCode)
@@ -305,8 +321,7 @@ class MainActivity : AppCompatActivity() {
                             tryNum = 0
                         }
                     }
-                }
-                else {
+                } else {
                     tryNum++
                     if (tryNum == 2) {
                         tv_result.text = "올바르지 않은 역 이름입니다.\n다시 시도해주세요."
@@ -369,9 +384,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        when(keyCode) {
+        when (keyCode) {
             KeyEvent.KEYCODE_BACK -> {
-                if((System.currentTimeMillis() - initTime) > 1500) {
+                if ((System.currentTimeMillis() - initTime) > 1500) {
                     Toast.makeText(this, "종료하려면 한번 더 누르세요.", Toast.LENGTH_SHORT).show()
                     initTime = System.currentTimeMillis()
                 } else {
@@ -381,5 +396,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SpeechRecognizerManager.getInstance().finalizeLibrary()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 }

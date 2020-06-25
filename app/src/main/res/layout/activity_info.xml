@@ -40,22 +40,25 @@
 
     <TextView
         android:id="@+id/textView10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:autoSizeMaxTextSize="18sp"
+        android:autoSizeTextType="uniform"
         android:gravity="center"
+        android:padding="10dp"
         android:text="201611294 정근영\n2020 Mobile Programming Project"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toStartOf="@+id/imageView"
+        app:layout_constraintBottom_toTopOf="@+id/guideline8"
+        app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="109dp"
-        android:layout_height="110dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="10dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline8"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -65,11 +68,15 @@
 
     <TextView
         android:id="@+id/textView11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:autoSizeMaxTextSize="24sp"
+        android:autoSizeTextType="uniform"
         android:gravity="center"
+        android:lines="5"
+        android:padding="10dp"
         android:text="이 어플리케이션은 음성인식을 기반으로 한\n지하철 경로 제공 서비스입니다.\n~(역) 에서(부터) ~(역)으로 말해주시면 됩니다.\n즐겨찾기에 위치를 등록하면\n등록한 장소로 경로를 찾을 수 있습니다."
-        android:textSize="18sp"
+        android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline9"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,8 +84,9 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="109dp"
-        android:layout_height="110dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/textView12"
@@ -88,16 +96,25 @@
     <TextView
         android:id="@+id/textView12"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:autoLink="web"
         android:autoSizeMaxTextSize="18sp"
+        android:autoSizeTextType="uniform"
         android:gravity="center"
+        android:padding="10dp"
         android:text="Github : https://github.com/GeunYoungJeong/One-Touch_Subway"
         android:textColorLink="@color/colorPrimaryDark"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintEnd_toStartOf="@+id/guideline10"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline9" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline10"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.65" />
 </androidx.constraintlayout.widget.ConstraintLayout>

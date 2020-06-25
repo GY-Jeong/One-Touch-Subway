@@ -35,7 +35,11 @@
         android:layout_weight="3.5"
         android:gravity="center"
         android:maxLines="1"
-        android:text="시청역"
+        android:paddingStart="5dp"
+        android:paddingTop="5dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="5dp"
+        android:text="4.19민주묘지역"
         android:textSize="28sp"
         app:autoSizeMaxTextSize="28sp"
         app:autoSizeTextType="uniform" />

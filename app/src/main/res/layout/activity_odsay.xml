@@ -45,38 +45,67 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-    <!--
-    <ScrollView
-        android:id="@+id/scrollView2"
+    <Button
+        android:id="@+id/prevTravelBtn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/guideline4"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:backgroundTint="#FFFFFF"
+        android:text="이전"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/firstTravelBtn"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3">
+        app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
-        <LinearLayout
-            android:id="@+id/pathViewList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
-    -->
+    <Button
+        android:id="@+id/firstTravelBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:autoSizeMaxTextSize="16sp"
+        android:backgroundTint="#FFFFFF"
+        android:textSize="16sp"
+        android:text="첫차"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/lastTravelBtn"
+        app:layout_constraintStart_toEndOf="@+id/prevTravelBtn"
+        app:layout_constraintTop_toTopOf="@+id/guideline4" />
+
+    <Button
+        android:id="@+id/lastTravelBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:autoSizeMaxTextSize="16sp"
+        android:backgroundTint="#FFFFFF"
+        android:textSize="16sp"
+        android:text="막차"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintEnd_toStartOf="@+id/nextTravelBtn"
+        app:layout_constraintStart_toEndOf="@+id/firstTravelBtn"
+        app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
     <Button
         android:id="@+id/nextTravelBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
         android:autoSizeMaxTextSize="16sp"
         android:backgroundTint="#FFFFFF"
         android:text="다음"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/prevTravelBtn"
-        app:layout_constraintTop_toBottomOf="@+id/swiperefresh" />
+        app:layout_constraintStart_toEndOf="@+id/lastTravelBtn"
+        app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
     <Spinner
         android:id="@+id/dayOfWeekSpinner"
@@ -100,19 +129,6 @@
         app:layout_constraintStart_toEndOf="@+id/dayOfWeekSpinner"
         app:layout_constraintTop_toTopOf="@+id/guideline2" />
 
-    <Button
-        android:id="@+id/prevTravelBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#FFFFFF"
-        android:text="이전"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
-        app:layout_constraintEnd_toStartOf="@+id/nextTravelBtn"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/swiperefresh" />
-
     <TextView
         android:id="@+id/totalTime"
         android:layout_width="wrap_content"
@@ -127,7 +143,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center"
-        android:text="찾으시는 경로가 없습니다."
+        android:text="현재 시간에 운행하는 열차가 없습니다."
         android:textSize="30sp"
         android:visibility="gone"
         app:autoSizeMaxTextSize="30sp"

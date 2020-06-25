@@ -141,7 +141,7 @@ class DBhelper(val context : Context) : SQLiteOpenHelper(context, DB_NAME, null,
             TableRow.LayoutParams.WRAP_CONTENT, count.toFloat())
         //행의 폭정보는 가중치로 결정
         tablerow.layoutParams = rowParam
-        val viewParm = TableRow.LayoutParams(0, 120, 1f)
+        val viewParm = TableRow.LayoutParams(0, 100, 1f)
         for(i in 0 until count) {
             val textView = TextView(activity)
             textView.layoutParams = viewParm
@@ -150,8 +150,9 @@ class DBhelper(val context : Context) : SQLiteOpenHelper(context, DB_NAME, null,
             } else {
                 textView.text = "역"
             }
-            textView.setBackgroundColor(Color.LTGRAY)
-            textView.textSize = 18.0f
+            textView.setBackgroundColor(Color.BLACK)
+            textView.setTextColor(Color.WHITE)
+            textView.textSize = 16.0f
             textView.gravity = Gravity.CENTER
             tablerow.addView(textView)
         }
@@ -173,7 +174,7 @@ class DBhelper(val context : Context) : SQLiteOpenHelper(context, DB_NAME, null,
                 val textView = TextView(activity)
                 textView.layoutParams = viewParm
                 textView.text = cursor.getString(i)
-                textView.textSize = 18.0f
+                textView.textSize = 16.0f
                 textView.gravity = Gravity.CENTER
                 textView.tag = i
                 row.addView(textView)
