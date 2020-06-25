@@ -243,10 +243,10 @@ class odsayActivity : AppCompatActivity() {
     fun refreshTime() {
         val cal = Calendar.getInstance()
         currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
-        Log.i("refreshTime ", currentTime.toString())
         if (currentTime < 60) {
             currentTime += 24 * 60
         }
+        Log.i("refreshTime ", currentTime.toString())
         travelTime = currentTime
     }
 
@@ -282,6 +282,7 @@ class odsayActivity : AppCompatActivity() {
                     }
                     API.SUBWAY_TIME_TABLE -> {
                         timeTableJsonInfo = odsayData.json.getJSONObject("result")
+                        Log.i("timeJson", timeTableJsonInfo.toString())
                         timeTableJsonInfoList.add(timeTableJsonInfo)
                         searchTimeTable(timeTableJsonInfo)
                     }
@@ -331,6 +332,7 @@ class odsayActivity : AppCompatActivity() {
 
     private fun searchFastestTime(i: Int): Int {
         val timeList = timeTableList[i]
+        Log.i("check", timeList.toString())
         for (j in 0 until timeList.size) {
             if (travelTime <= timeList[j]) {
                 if (i == 0) firstTravelIndex = j
@@ -434,6 +436,7 @@ class odsayActivity : AppCompatActivity() {
             when (i) {
                 0 -> {
                     startTravelTime = searchFastestTime(i)
+                    Log.i("check", "${startTravelTime}, ${travelTime}")
                     if (startTravelTime == -1) {
                         Toast.makeText(this, "운행하지 않는 경로입니다.", Toast.LENGTH_SHORT).show()
                         scrollView2.visibility = View.GONE

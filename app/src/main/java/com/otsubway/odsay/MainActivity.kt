@@ -21,10 +21,6 @@ import com.odsay.odsayandroidsdk.ODsayService
 import com.odsay.odsayandroidsdk.OnResultCallbackListener
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONException
-import java.io.FileNotFoundException
-import java.io.InputStream
-import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     val TAG = "KAKAO"
@@ -34,7 +30,6 @@ class MainActivity : AppCompatActivity() {
     val list = arrayListOf<String>()
     var tryNum = 0
     var initTime: Long = 0
-    var stationCodeMap = mutableMapOf<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,21 +44,6 @@ class MainActivity : AppCompatActivity() {
         infoButton.setOnClickListener {
             val i = Intent(this, InfoActivity::class.java)
             startActivity(i)
-        }
-        readFile()
-    }
-
-    private fun readFile() {
-        try {
-            val scan = Scanner(openFileInput("StationCode.txt") as InputStream)
-            while (scan.hasNextLine()) {
-                val stationName = scan.nextLine()
-                val stationCode = scan.nextLine()
-                stationCodeMap[stationName] = stationCode
-            }
-            scan.close()
-        } catch (ex: FileNotFoundException) {
-
         }
     }
 
@@ -124,7 +104,6 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         when (requestCode) {
             RECORD_REQUEST_CODE -> {
                 if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -153,11 +132,9 @@ class MainActivity : AppCompatActivity() {
         val builder = SpeechRecognizerClient.Builder()
             .setServiceType(SpeechRecognizerClient.SERVICE_TYPE_LOCAL)
         val client = builder.build()
-        //버튼 클릭
 
         //Callback
         client.setSpeechRecognizeListener(object : SpeechRecognizeListener {
-            //콜백함수들
             override fun onReady() {
                 Log.d(TAG, "모든 하드웨어 및 오디오 서비스가 준비되었습니다.")
                 runOnUiThread {
@@ -181,16 +158,12 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "현재까지 인식된 문자열 : $partialResult")
             }
 
-            /*
-            최종결과 - 음성입력이 종료 혹은 stopRecording()이 호출되고 서버에 질의가 완료되고 나서 호출됨
-            Bundle에 ArrayList로 값을 받음. 신뢰도가 높음 것 부터...
-             */
-
             override fun onResults(results: Bundle?) {
                 val texts =
                     results?.getStringArrayList(SpeechRecognizerClient.KEY_RECOGNITION_RESULTS)
 
                 Log.d(TAG, texts?.get(0).toString())
+
                 //정확도가 높은 첫번째 결과값을 텍스트뷰에 출력
                 runOnUiThread {
                     tv_result.text = texts?.get(0)
@@ -199,38 +172,37 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onAudioLevel(audioLevel: Float) {
-                //Log.d(TAG, "Audio Level(0~1): " + audioLevel.toString())
+
             }
 
             override fun onError(errorCode: Int, errorMsg: String) {
                 when (errorCode) {
                     SpeechRecognizerClient.ERROR_AUDIO_FAIL -> {
-                        Log.i("onError ", errorMsg)
+                        Log.e(TAG, errorMsg)
                         runOnUiThread { tv_result.text = "음성입력이 불가능하거나\n마이크 접근이 허용되지 않았습니다." }
                     }
                     SpeechRecognizerClient.ERROR_NETWORK_FAIL -> {
-                        Log.i("onError ", errorMsg)
+                        Log.e(TAG, errorMsg)
                         runOnUiThread { tv_result.text = "네트워크 오류가 발생했습니다.\n인터넷 상태를 확인해주세요." }
                     }
                     SpeechRecognizerClient.ERROR_NO_RESULT -> {
-                        Log.i("onError ", errorMsg)
+                        Log.e(TAG, errorMsg)
                         runOnUiThread { tv_result.text = "인식된 결과 목록이 없습니다." }
                     }
                     SpeechRecognizerClient.ERROR_CLIENT -> {
-                        Log.i("onError ", errorMsg)
+                        Log.e(TAG, errorMsg)
                         runOnUiThread { tv_result.text = "\" ~ 에서(부터) ~ \"\n으로 말해주세요." }
                     }
                     SpeechRecognizerClient.ERROR_SERVER_ALLOWED_REQUESTS_EXCESS -> {
-                        Log.i("onError ", errorMsg)
+                        Log.e(TAG, errorMsg)
                         runOnUiThread { tv_result.text = "요청 허용 횟수를 초과했습니다." }
                     }
                     else -> {
-                        Log.i("onError ", errorMsg)
+                        Log.e(TAG, errorMsg)
                         runOnUiThread { tv_result.text = "시스템 오류입니다." }
                     }
                 }
             }
-
             override fun onFinished() {
             }
         })
@@ -265,8 +237,8 @@ class MainActivity : AppCompatActivity() {
                 station = resultText.split("부터") as ArrayList<String>
             }
 
-            Log.d("부터", station[0])
-            Log.d("부터", station[1])
+            Log.i("Start", station[0])
+            Log.i("End", station[1])
 
             try {
                 val readDB =
@@ -300,6 +272,28 @@ class MainActivity : AppCompatActivity() {
                 changeToStationCode(station[0], station[1])
             }
         }
+    }
+
+    private fun changeToStationCode(startStation: String, endStation: String) {
+        odsayService.requestSearchStation(
+            startStation,
+            "1000",
+            "2",
+            "1",
+            "0",
+            "",
+            onResultCallbackListener
+        )
+
+        odsayService.requestSearchStation(
+            endStation,
+            "1000",
+            "2",
+            "1",
+            "0",
+            "",
+            onResultCallbackListener
+        )
     }
 
     private val onResultCallbackListener = object : OnResultCallbackListener {
@@ -337,9 +331,9 @@ class MainActivity : AppCompatActivity() {
         // 호출 실패 시 실행
         override fun onError(errorCode: Int, errorMessage: String, api: API) {
             when (errorCode) {
-                500 -> Log.d("ErrorMessage", "$api : 서버 내부 오류")
-                -8 -> Log.d("ErrorMessage", "$api : 필수 입력값 형식 및 범위 오류")
-                -9 -> Log.d("ErrorMessage", "$api : 필수 입력값 누락")
+                500 -> Log.e("ODSAYError", "$api : 서버 내부 오류")
+                -8 -> Log.e("ODSAYError", "$api : 필수 입력값 형식 및 범위 오류")
+                -9 -> Log.e("ODSAYError", "$api : 필수 입력값 누락")
             }
         }
     }
@@ -361,28 +355,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun changeToStationCode(startStation: String, endStation: String) {
-        odsayService.requestSearchStation(
-            startStation,
-            "1000",
-            "2",
-            "1",
-            "0",
-            "",
-            onResultCallbackListener
-        )
-
-        odsayService.requestSearchStation(
-            endStation,
-            "1000",
-            "2",
-            "1",
-            "0",
-            "",
-            onResultCallbackListener
-        )
-    }
-
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_BACK -> {
@@ -398,13 +370,8 @@ class MainActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         SpeechRecognizerManager.getInstance().finalizeLibrary()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 }
