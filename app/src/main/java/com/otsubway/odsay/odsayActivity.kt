@@ -86,6 +86,9 @@ class odsayActivity : AppCompatActivity() {
         startPathSearch()
     }
 
+    /**
+     * swiperefresh, 경로 검색 버튼(이전, 다음, 첫차, 막차) 초기화
+     */
     private fun init() {
         swiperefresh.setOnRefreshListener {
             swiperefresh.isRefreshing = true
@@ -126,6 +129,14 @@ class odsayActivity : AppCompatActivity() {
             travelTime = timeTableList[0][firstTravelIndex]
             pathViewList.removeAllViews()
             attachOnView()
+
+            if(scrollView2.visibility == View.GONE) {
+                scrollView2.visibility = View.VISIBLE
+                noResultView.visibility = View.GONE
+                prevTravelBtn.isClickable = true
+                nextTravelBtn.isClickable = true
+                swiperefresh.isEnabled = true
+            }
         }
 
         lastTravelBtn.setOnClickListener {
@@ -150,6 +161,10 @@ class odsayActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 경로 검색 옵션 Spinner 초기화
+     * 요일 선택, 최단거리 / 최소환승 선택
+     */
     private fun initSpinner() {
         val dayOfWeekAdapter =
             ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, ArrayList<String>())
@@ -240,6 +255,9 @@ class odsayActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 현재 시스템 시간으로 새로고침
+     */
     fun refreshTime() {
         val cal = Calendar.getInstance()
         currentTime = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
@@ -250,6 +268,9 @@ class odsayActivity : AppCompatActivity() {
         travelTime = currentTime
     }
 
+    /**
+     * 지하철 API 초기화
+     */
     fun initODsay() {
         odsayService =
             ODsayService.init(applicationContext, "RcoymhQZ8l0B/FfV7rRW0nKUPPHZASFWAxC+QNnAs+Q")
@@ -257,6 +278,11 @@ class odsayActivity : AppCompatActivity() {
         odsayService.setConnectionTimeout(5000)
     }
 
+    /**
+     * 경로 검색을 시작하는 함수
+     * searchOption이 1이면 최단거리
+     * 2이면 최소환승 옵션으로 설정
+     */
     private fun startPathSearch() {
         odsayService.requestSubwayPath(
             "1000",
@@ -267,6 +293,10 @@ class odsayActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * API 함수들의 CallBackListener
+     * JSON 데이터 받아서 가공하는 함수에 넣어준다.
+     */
     private val onResultCallbackListener = object : OnResultCallbackListener {
         // 호출 성공 시 실행
         override fun onSuccess(odsayData: ODsayData, api: API) {
@@ -304,45 +334,9 @@ class odsayActivity : AppCompatActivity() {
         }
     }
 
-    private fun searchTimeTable(timeTableJsonInfo: JSONObject) {
-        val timeList = arrayListOf<Int>()
-        val ordList = timeTableJsonInfo.getJSONObject(dayOfWeekCode)
-        val wayList = if (ordList.has("up")) {
-            ordList.getJSONObject("up")
-        } else {
-            ordList.getJSONObject("down")
-        }
-
-        val time = wayList.getJSONArray("time")
-
-        for (i in 0 until time.length()) {
-            val h = time.getJSONObject(i).getInt("Idx")
-            val timeListbyMinute =
-                time.getJSONObject(i).getString("list").split(" ")
-            for (element in timeListbyMinute) {
-                timeList.add(h * 60 + element.substring(0, 2).toInt())
-            }
-        }
-        timeTableList.add(timeList)
-        temp++
-        if (temp == driveNumber) {
-            attachOnView()
-        }
-    }
-
-    private fun searchFastestTime(i: Int): Int {
-        val timeList = timeTableList[i]
-        Log.i("check", timeList.toString())
-        for (j in 0 until timeList.size) {
-            if (travelTime <= timeList[j]) {
-                if (i == 0) firstTravelIndex = j
-                travelTime = timeList[j]
-                return timeList[j]
-            }
-        }
-        return -1
-    }
-
+    /**
+     * 경로 JSON에서 원하는 정보들 내부 자료구조에 저장
+     */
     private fun searchPath(json: JSONObject) {
         stations = json.getJSONObject("stationSet").getJSONArray("stations")
         driveInfo = json.getJSONObject("driveInfoSet").getJSONArray("driveInfo")
@@ -413,6 +407,56 @@ class odsayActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 시간표 JSON을 내부 자료구조에 추가
+     * 모두 추가되면 attachOnView 호출
+     */
+    private fun searchTimeTable(timeTableJsonInfo: JSONObject) {
+        val timeList = arrayListOf<Int>()
+        val ordList = timeTableJsonInfo.getJSONObject(dayOfWeekCode)
+        val wayList = if (ordList.has("up")) {
+            ordList.getJSONObject("up")
+        } else {
+            ordList.getJSONObject("down")
+        }
+
+        val time = wayList.getJSONArray("time")
+
+        for (i in 0 until time.length()) {
+            val h = time.getJSONObject(i).getInt("Idx")
+            val timeListbyMinute =
+                time.getJSONObject(i).getString("list").split(" ")
+            for (element in timeListbyMinute) {
+                timeList.add(h * 60 + element.substring(0, 2).toInt())
+            }
+        }
+        timeTableList.add(timeList)
+        temp++
+        if (temp == driveNumber) {
+            attachOnView()
+        }
+    }
+
+    /**
+     * 현재 시간으로부터 가장 빠른 열차의 시간으로 travelTime 세팅
+     * 탈 수 없으면, -1리턴
+     */
+    private fun searchFastestTime(i: Int): Int {
+        val timeList = timeTableList[i]
+        Log.i("check", timeList.toString())
+        for (j in 0 until timeList.size) {
+            if (travelTime <= timeList[j]) {
+                if (i == 0) firstTravelIndex = j
+                travelTime = timeList[j]
+                return timeList[j]
+            }
+        }
+        return -1
+    }
+
+    /**
+     * JSON에서 Parsing한 정보들 View에 출력
+     */
     private fun attachOnView() : Int{
         swiperefresh.isRefreshing = false
         var startTravelTime = 0
@@ -589,6 +633,9 @@ class odsayActivity : AppCompatActivity() {
         return 0
     }
 
+    /**
+     * 지하철 역 코드별로 RGB COLOR 코드 반환
+     */
     fun colorByLine(lineCode: String): Int {
         when (lineCode.toInt()) {
             1 -> return Color.parseColor("#005DAA")

@@ -28,16 +28,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline6">
-
-        <TableRow
-
-            />
-
-    </TableLayout>
-
-
-
+        app:layout_constraintTop_toTopOf="@+id/guideline6"></TableLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
@@ -61,42 +52,55 @@
         app:layout_constraintGuide_percent="0.3" />
 
     <Button
-        android:id="@+id/updateBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/insertBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="7dp"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeTextType="uniform"
         android:backgroundTint="#FFFFFF"
-        android:text="업데이트"
-        android:textSize="18sp"
+        android:text="추가"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/updateBtn"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/deleteBtn"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline11" />
 
     <Button
-        android:id="@+id/deleteBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/updateBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="7dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginBottom="7dp"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeTextType="uniform"
         android:backgroundTint="#FFFFFF"
-        android:text="삭제"
-        android:textSize="18sp"
+        android:text="업데이트"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
-        app:layout_constraintEnd_toStartOf="@+id/updateBtn"
+        app:layout_constraintEnd_toStartOf="@+id/deleteBtn"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/insertBtn"
         app:layout_constraintTop_toTopOf="@+id/guideline11" />
 
     <Button
-        android:id="@+id/insertBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/deleteBtn"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="7dp"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeTextType="uniform"
         android:backgroundTint="#FFFFFF"
-        android:text="추가"
-        android:textSize="18sp"
+        android:text="삭제"
+        android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline6"
-        app:layout_constraintEnd_toStartOf="@+id/deleteBtn"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/updateBtn"
         app:layout_constraintTop_toTopOf="@+id/guideline11" />
 
     <LinearLayout

@@ -47,6 +47,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * ODSay(지하철 경로 API) 초기화
+     */
     private fun initODSay() {
         odsayService =
             ODsayService.init(applicationContext, "RcoymhQZ8l0B/FfV7rRW0nKUPPHZASFWAxC+QNnAs+Q")
@@ -54,6 +57,9 @@ class MainActivity : AppCompatActivity() {
         odsayService.setConnectionTimeout(5000)
     }
 
+    /**
+     * 권한정보 설정
+     */
     private fun setupPermissions() {
         if (ActivityCompat.checkSelfPermission(
                 this,
@@ -124,6 +130,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * KAKAO STT API 초기화, 음성인식 기능 구현
+     */
     private fun startUsingSpeechSDK() {
         //SDK 초기화
         SpeechRecognizerManager.getInstance().initializeLibrary(this)
@@ -199,7 +208,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     else -> {
                         Log.e(TAG, errorMsg)
-                        runOnUiThread { tv_result.text = "시스템 오류입니다." }
+                        runOnUiThread { tv_result.text = "시스템 오류입니다.\n${errorMsg}" }
                     }
                 }
             }
@@ -212,6 +221,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 음성인식 된 텍스트로 역 정보 추출, 역 이름에서 역 코드 가져오는 API 호출
+     */
     fun setStation(inputText: String?) {
         if (inputText != null) {
             var resultText = inputText.replace(" ", "")
@@ -240,6 +252,10 @@ class MainActivity : AppCompatActivity() {
             Log.i("Start", station[0])
             Log.i("End", station[1])
 
+            /**
+             * 데이터베이스에서 항목(사용자 위치) 검색
+             * 일치하면 역이름으로 대체
+             */
             try {
                 val readDB =
                     this.openOrCreateDatabase("stationByLocation.db", Context.MODE_PRIVATE, null)
@@ -296,6 +312,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    /**
+     * requestSearchStation의 CallbackListener
+     * JSON 정보를 반환해 역 이름이 유효한지 검사
+     * 유효하다면 JSON 데이터 startODsay 함수에 넘겨준다.
+     */
     private val onResultCallbackListener = object : OnResultCallbackListener {
         // 호출 성공 시 실행
         override fun onSuccess(odsayData: ODsayData, api: API) {
@@ -338,6 +359,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 출발, 도착역 모두 유효한지 검사
+     * 둘중 하나라도 유효하지 않으면, 에러메시지 출력, 다시 시도
+     * 둘다 유효하다면 itent로 코드 리스트 odsayActivity 시작
+     */
     fun startODsay(code: String) {
         tryNum++
         list.add(code)
@@ -355,6 +381,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * 뒤로가기 키 1.5초 안에 두번 누르면 프로그램 종료
+     */
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         when (keyCode) {
             KeyEvent.KEYCODE_BACK -> {
@@ -370,6 +399,9 @@ class MainActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
+    /**
+     * 어플리케이션 종료되면 API 종료
+     */
     override fun onDestroy() {
         super.onDestroy()
         SpeechRecognizerManager.getInstance().finalizeLibrary()
