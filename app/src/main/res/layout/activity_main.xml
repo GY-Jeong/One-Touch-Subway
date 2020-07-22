@@ -13,7 +13,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:text="One - Touch Subway"
+        android:text="한마디 지하철"
         android:textSize="24sp" />
 
     <LinearLayout

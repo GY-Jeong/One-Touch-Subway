@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OTSubway</string>
+    <string name="app_name">한마디 지하철</string>
     <string name="odsay_key">RcoymhQZ8l0B/FfV7rRW0nKUPPHZASFWAxC+QNnAs+Q</string>
     <string name="kakao_app_key">9196c2fab9c3e3166222bdfd7bd81086</string>
     <string name="title_activity_intro">IntroActivity</string>
