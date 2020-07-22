@@ -10,7 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/SDK_release_v2.0.0" />
+            <option value="$PROJECT_DIR$/ODsayAndroidSDK_2.0.1" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

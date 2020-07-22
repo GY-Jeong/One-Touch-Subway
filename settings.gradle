@@ -1,2 +1,2 @@
 rootProject.name='OTSubway'
-include ':app', ':SDK_release_v2.0.0'
+include ':app', ':ODsayAndroidSDK_2.0.1'
